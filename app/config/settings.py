@@ -143,9 +143,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
-
 CELERY_BROKER_URL = 'redis://redis:6379/0'
 
 
 EMAIL_SENDER = ''       # адрес электронной почты с которого будет отправляться сообщение
 EMAIL_PASSWORD = ''     # пароль гугл аккаунта 
+
+ 
