@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from .utils import send_email
+from .tasks import send_email
 
 
 class User(models.Model):
@@ -16,7 +16,7 @@ class User(models.Model):
         verbose_name_plural = 'Пользователи'
 
     def save(self, *args, **kwargs):  
-        send_email(self.email, 'Thank you for registering!')
+        send_email.delay(self.email, 'Thank you for registering!')
         return super().save(*args, **kwargs)
 
 

@@ -1,0 +1,92 @@
+version: '3.9'
+
+# docker-compose exec [имя сервиса] python manage.py [команда]
+# docker rmi library_api-flower:latest library_api-worker:latest library_api-django
+
+services:
+  django:
+    build: .
+    container_name: django
+    command: sh -c "python manage.py makemigrations library && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/usr/src/service_app/
+    ports:
+      - 8000:8000
+    depends_on:
+      - database
+      - redis
+
+  database:
+    restart: always
+    image: postgres:alpine
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    container_name: pgdb
+    volumes:
+      - pgdbdata:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  redis:
+    container_name: redis
+    image: redis:7.2.3-alpine3.18
+    hostname: redis
+
+  worker:
+    build:
+      context: .
+    container_name: worker
+    entrypoint: celery
+    command: -A celery_app.app worker --loglevel=info
+    volumes:
+      - .:/usr/src/service_app/
+    links:
+      - redis
+    depends_on:
+      - redis
+
+  flower:
+    build:
+      context: .
+    container_name: flower
+    hostname: flower
+    entrypoint: celery
+    command: -A celery_app.app flower
+    volumes:
+      - .:/usr/src/service_app/
+    links:
+      - redis
+    depends_on:
+      - redis
+    ports:
+    - "5555:5555"
+
+
+
+volumes:
+  pgdbdata:
+  worker-data:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
