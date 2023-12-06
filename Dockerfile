@@ -8,7 +8,7 @@ RUN pip install --upgrade pip
 WORKDIR /user/src/service_app/app
 
 COPY ./requirements.txt /user/src/service_app/app/
-RUN python3 -m pip install -r requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt
 COPY . /user/src/service_app
 
 
